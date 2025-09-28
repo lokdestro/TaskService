@@ -31,6 +31,8 @@ func New() (*App, error) {
 
 	srv := service.New(db, kc)
 
+	go srv.Task().ProcessTasks()
+
 	result := &App{
 		server: &http.Server{
 			Addr:    config.Srv(),
@@ -59,7 +61,7 @@ func (a *App) Run(ctx context.Context) error {
 			return
 		}
 	}()
-	
+
 	log.Info().Msg("Server started")
 
 	if err := a.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {

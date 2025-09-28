@@ -3,7 +3,9 @@ package task
 import (
 	"TaskService/internal/dto"
 	"TaskService/internal/service"
+	"TaskService/internal/service/task"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -131,7 +133,12 @@ func (h *Handler) UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.service.Task().Update(r.Context(), req); err != nil {
+	err := h.service.Task().Update(r.Context(), req)
+	if err != nil {
+		if errors.Is(err, task.ErrInvalidStatus) {
+			http.Error(w, "Invalid status", http.StatusBadRequest)
+			return
+		}
 		http.Error(w, "Failed to update task", http.StatusInternalServerError)
 		return
 	}

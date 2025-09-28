@@ -8,12 +8,15 @@ import (
 	"TaskService/pkg/logger"
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/IBM/sarama"
 	"strconv"
 	"time"
 
 	"github.com/gammazero/workerpool"
 )
+
+var ErrInvalidStatus = errors.New("invalid status")
 
 type Service interface {
 	Get(ctx context.Context, id int) (dto.GetTaskResponse, error)
@@ -62,7 +65,9 @@ func (s *service) Get(ctx context.Context, id int) (dto.GetTaskResponse, error) 
 }
 
 func (s *service) GetList(ctx context.Context) (dto.GetTaskListResponse, error) {
-	var resp dto.GetTaskListResponse
+	resp := dto.GetTaskListResponse{
+		Tasks: make([]dto.GetTaskResponse, 0),
+	}
 
 	log := logger.Get()
 
@@ -88,6 +93,11 @@ func (s *service) GetList(ctx context.Context) (dto.GetTaskListResponse, error) 
 
 func (s *service) Update(ctx context.Context, req dto.UpdateTaskRequest) error {
 	log := logger.Get()
+
+	if err := validateStatus(req.Status); err != nil {
+		log.Error().Err(err).Msg("validateStatus failed")
+		return err
+	}
 
 	task := model.Task{
 		ID:          req.ID,
@@ -177,4 +187,11 @@ func (s *service) ProcessTasks() {
 		if err := s.kc.ConsumeMessages(handler); err != nil {
 		}
 	}()
+}
+
+func validateStatus(status string) error {
+	if status == "done" || status == "created" {
+		return nil
+	}
+	return ErrInvalidStatus
 }

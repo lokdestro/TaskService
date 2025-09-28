@@ -1,10 +1,15 @@
 package handler
 
 import (
+	"net/http"
+
 	"TaskService/internal/handler/task"
 	"TaskService/internal/service"
+
+	_ "TaskService/docs"
+
 	"github.com/go-chi/chi/v5"
-	"net/http"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type Handler struct {
@@ -20,11 +25,13 @@ func New(srv service.Service) http.Handler {
 
 	taskHandler := task.New(srv)
 
+	handler.router.Get("/swagger/*", httpSwagger.Handler())
+
 	handler.router.Route("/tasks", func(r chi.Router) {
-		r.Get("/", taskHandler.GetTaskListHandler) // GET /tasks - получить список задач
-		r.Post("/", taskHandler.CreateTaskHandler) // POST /tasks - создать задачу
-		r.Put("/", taskHandler.UpdateTaskHandler)  // PUT /tasks - обновить задачу
-		r.Get("/{id}", taskHandler.GetTaskHandler) // GET /tasks/{id} - получить задачу по ID
+		r.Get("/", taskHandler.GetTaskListHandler)
+		r.Post("/", taskHandler.CreateTaskHandler)
+		r.Put("/", taskHandler.UpdateTaskHandler)
+		r.Get("/{id}", taskHandler.GetTaskHandler)
 	})
 
 	return handler.router

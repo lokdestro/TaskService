@@ -5,21 +5,18 @@ import (
 	"github.com/IBM/sarama"
 )
 
-// Kafka представляет интерфейс для работы с Kafka
 type Kafka interface {
 	SendMessage(message []byte) error
 	ConsumeMessages(handler func(message *sarama.ConsumerMessage)) error
 	Close() error
 }
 
-// KafkaClient реализует Kafka интерфейс
 type KafkaClient struct {
 	producer sarama.SyncProducer
 	consumer sarama.Consumer
 	topic    string
 }
 
-// NewKafkaClient создает новый клиент Kafka
 func NewKafkaClient(cfg Config) (Kafka, error) {
 	producerConfig := sarama.NewConfig()
 	producerConfig.Producer.RequiredAcks = sarama.WaitForAll
@@ -34,7 +31,6 @@ func NewKafkaClient(cfg Config) (Kafka, error) {
 		return nil, fmt.Errorf("failed to create producer: %w", err)
 	}
 
-	// Настройка консьюмера
 	consumerConfig := sarama.NewConfig()
 	consumer, err := sarama.NewConsumer(brokers, consumerConfig)
 	if err != nil {
@@ -51,7 +47,6 @@ func NewKafkaClient(cfg Config) (Kafka, error) {
 	return result, nil
 }
 
-// SendMessage отправляет сообщение в указанный топик
 func (kc *KafkaClient) SendMessage(message []byte) error {
 	msg := &sarama.ProducerMessage{
 		Topic: kc.topic,
@@ -67,7 +62,6 @@ func (kc *KafkaClient) SendMessage(message []byte) error {
 	return nil
 }
 
-// ConsumeMessages потребляет сообщения из топика
 func (kc *KafkaClient) ConsumeMessages(handler func(message *sarama.ConsumerMessage)) error {
 	partitionList, err := kc.consumer.Partitions(kc.topic)
 	if err != nil {
@@ -91,7 +85,6 @@ func (kc *KafkaClient) ConsumeMessages(handler func(message *sarama.ConsumerMess
 	return nil
 }
 
-// Close закрывает соединения
 func (kc *KafkaClient) Close() error {
 	var errs []error
 

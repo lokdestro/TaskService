@@ -72,7 +72,7 @@ func (r *repo) GetList(ctx context.Context) ([]model.Task, error) {
 }
 
 func (r *repo) Update(ctx context.Context, req model.Task) error {
-	query := "UPDATE tasks SET set title = $1 SET description = $2 SET status = $3 WHERE id = $4"
+	query := "UPDATE tasks SET title = $1, description = $2, status = $3 WHERE id = $4"
 
 	_, err := r.db.ExecContext(ctx, query, req.Title, req.Description, req.Status, req.ID)
 

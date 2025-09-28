@@ -15,3 +15,6 @@ docker_up:
 
 docker_down:
 	docker compose down
+
+swagger:
+	swag init --generalInfo cmd/main.go --output docs/

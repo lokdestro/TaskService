@@ -15,27 +15,16 @@ import (
 	"github.com/joho/godotenv"
 )
 
-//export GOOSE_DBSTRING="user=dima password=1 dbname=networks sslmode=disable
-//echo $GOOSE_DBSTRING
-
-//export GOOSE_DRIVER=postgres
-//echo $GOOSE_DRIVER
-
-//sudo -u postgres psql
-//\c networks
-
-//swag init --generalInfo cmd/Cringe-Networks/main.go --output docs
-
+// @title Task Service API
+// @version 1.0
+// @description API для управления задачами
+// @host localhost:3000
+// @BasePath /
 func init() {
 	_ = godotenv.Load()
 
 	viper.SetEnvKeyReplacer(strings.NewReplacer(`.`, `_`))
 	viper.AutomaticEnv()
-	//
-	//viper.SetConfigType("yaml")
-	//if err := viper.ReadConfig(bytes.NewBuffer(config.Data)); err != nil {
-	//	panic(err)
-	//}
 
 	if err := logger.Init(config.Log()); err != nil {
 		panic(err)
