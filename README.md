@@ -48,5 +48,16 @@ CREATE TABLE tasks (
 );
 ```
 
+## Запуск тестов
+unit тесты
+```bash
+make test
+```
+
+e2e тесты
+```bash
+make e2e_test
+```
+
 
 
