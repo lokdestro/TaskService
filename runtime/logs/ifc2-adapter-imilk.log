@@ -15,3 +15,5 @@
 {"level":"info","time":"2025-09-28T14:00:37.400Z","message":"Server stopped"}
 {"level":"info","time":"2025-09-28T14:04:29.265Z","message":"connect to postgres"}
 {"level":"info","time":"2025-09-28T14:04:29.278Z","message":"Server started"}
+{"level":"info","time":"2025-09-28T14:43:34.185Z","message":"connect to postgres"}
+{"level":"info","time":"2025-09-28T14:43:34.200Z","message":"Server started"}

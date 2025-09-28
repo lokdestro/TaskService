@@ -14,7 +14,7 @@
 1. Убедитесь, что установлены Docker и Docker Compose
 2. Выполните команду:
 ```bash
-docker-compose up -d
+make docker_up
 ```
 Приложение будет доступно по адресу: http://localhost:3000
 
@@ -23,8 +23,19 @@ docker-compose up -d
 Чтобы подключиться к контейнеру PostgreSQL для выполнения SQL-запросов:
 
 
+просмотрите запущенные контейнеры используя
 ```bash
-docker-compose exec db psql -U user -d betera
+docker ps
+```
+
+найдите id контейнера db-1 и выполните
+```bash
+docker exec -it <container_id> bash
+```
+
+зайдите в postgreSQL
+```bash
+psql -U postgres -d betera
 ```
 
 и выполните
