@@ -41,10 +41,10 @@ psql -U postgres -d betera
 и выполните
 ```sql
 CREATE TABLE tasks (
-  id SERIAL PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
-  description TEXT,
-  status VARCHAR(100) NOT NULL
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    status VARCHAR(100) NOT NULL DEFAULT 'created'
 );
 ```
 
