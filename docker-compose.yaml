@@ -1,0 +1,85 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      SERVER_PORT: 3000
+      SERVER_HOST: 0.0.0.0
+      POSTGRES_URL: db:5432
+      POSTGRES_USER: dima
+      POSTGRES_PASSWORD: 1
+      POSTGRES_NAME: betera
+      POSTGRES_DRIVER: postgres
+      KAFKA_BROKERS: kafka:9092
+      KAFKA_TOPIC: tasks
+      LOGGER_DIR: /app/runtime/logs
+      LOGGER_FILENAME: ifc2-adapter-imilk.log
+      LOGGER_LEVEL: INFO
+      LOGGER_MAX_SIZE_MB: 100
+      LOGGER_MAX_BACKUPS: 5
+      LOGGER_MAX_AGE_DAYS: 30
+      LOGGER_COMPRESS: "true"
+      LOGGER_DUPLICATE_TO_STDOUT: "true"
+      LOGGER_TIME_FORMAT: "2006-01-02T15:04:05.000Z0700"
+      LOGGER_SERVICE_NAME: TaskService
+    networks:
+      - app-network
+    volumes:
+      - ./runtime/logs:/app/runtime/logs
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - app-network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server kafka:9092 --list || exit 0"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
+
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: dima
+      POSTGRES_PASSWORD: 1
+      POSTGRES_DB: betera
+    networks:
+      - app-network
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dima -d betera"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  pgdata:

@@ -1,0 +1,17 @@
+{"level":"info","time":"2025-09-28T13:37:01.765Z","message":"Server started"}
+{"level":"info","time":"2025-09-28T13:38:20.229Z","message":"Server stopped"}
+{"level":"info","time":"2025-09-28T13:44:48.092Z","message":"Server started"}
+{"level":"info","time":"2025-09-28T13:44:54.830Z","message":"Server stopped"}
+{"level":"info","time":"2025-09-28T13:46:05.885Z","message":"connect to postgres"}
+{"level":"info","time":"2025-09-28T13:52:40.049Z","message":"connect to postgres"}
+{"level":"info","time":"2025-09-28T13:52:40.060Z","message":"Server started"}
+{"level":"info","time":"2025-09-28T13:53:08.638Z","message":"Server stopped"}
+{"level":"info","time":"2025-09-28T13:56:24.805Z","message":"connect to postgres"}
+{"level":"info","time":"2025-09-28T13:56:24.831Z","message":"Server started"}
+{"level":"info","time":"2025-09-28T13:56:48.292Z","message":"Server stopped"}
+{"level":"info","time":"2025-09-28T13:58:49.099Z","message":"connect to postgres"}
+{"level":"info","time":"2025-09-28T13:58:49.116Z","message":"Server started"}
+{"level":"info","error":"pq: relation \"tasks\" does not exist","time":"2025-09-28T13:58:58.287Z","message":"get tasks failed"}
+{"level":"info","time":"2025-09-28T14:00:37.400Z","message":"Server stopped"}
+{"level":"info","time":"2025-09-28T14:04:29.265Z","message":"connect to postgres"}
+{"level":"info","time":"2025-09-28T14:04:29.278Z","message":"Server started"}
