@@ -34,7 +34,8 @@ CREATE TABLE tasks (
   title VARCHAR(255) NOT NULL,
   description TEXT,
   status VARCHAR(100) NOT NULL
-);```
+);
+```
 
 
 
