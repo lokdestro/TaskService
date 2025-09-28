@@ -14,7 +14,7 @@ services:
       SERVER_PORT: 3000
       SERVER_HOST: 0.0.0.0
       POSTGRES_URL: db:5432
-      POSTGRES_USER: dima
+      POSTGRES_USER: user
       POSTGRES_PASSWORD: 1
       POSTGRES_NAME: betera
       POSTGRES_DRIVER: postgres
@@ -63,7 +63,7 @@ services:
     image: postgres:15-alpine
     restart: always
     environment:
-      POSTGRES_USER: dima
+      POSTGRES_USER: user
       POSTGRES_PASSWORD: 1
       POSTGRES_DB: betera
     networks:
@@ -71,7 +71,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dima -d betera"]
+      test: ["CMD-SHELL", "pg_isready -U user -d betera"]
       interval: 5s
       timeout: 5s
       retries: 10

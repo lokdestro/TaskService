@@ -22,26 +22,9 @@ docker-compose up -d
 Подключение к контейнеру базы данных
 Чтобы подключиться к контейнеру PostgreSQL для выполнения SQL-запросов:
 
-```bash
-docker exec -it <container_name> psql -U dima -d betera
-```
-Где <container_name> можно узнать командой:
 
 ```bash
-docker ps --filter "name=db"
-```
-Альтернативный способ подключения:
-
-bash
-docker-compose exec db psql -U dima -d betera
-Добавление миграций
-Способ 1: Через SQL-файлы
-Создайте SQL-файлы миграций в папке проекта
-
-Подключитесь к контейнеру базы данных:
-
-```bash
-docker-compose exec db psql -U dima -d betera
+docker-compose exec db psql -U user -d betera
 ```
 
 и выполните
