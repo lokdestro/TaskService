@@ -73,3 +73,6 @@
 {"level":"info","time":"2025-09-28T15:48:35.577Z","message":"Server started"}
 {"level":"info","error":"pq: relation \"tasks\" does not exist","time":"2025-09-28T16:18:12.646Z","message":"update task failed"}
 {"level":"info","error":"pq: relation \"tasks\" does not exist","time":"2025-09-28T16:18:26.350Z","message":"get tasks failed"}
+{"level":"info","time":"2025-09-28T17:28:18.870Z","message":"Server stopped"}
+{"level":"info","time":"2025-09-28T18:33:16.980Z","message":"connect to postgres"}
+{"level":"info","time":"2025-09-28T18:33:16.998Z","message":"Server started"}

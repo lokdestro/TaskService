@@ -54,24 +54,30 @@ func FromContext(ctx context.Context) zerolog.Logger {
 func Init(cfg Config) error {
 	cfg = validateConfig(cfg)
 
-	if err := os.MkdirAll(cfg.Dir, 0o755); err != nil {
-		return fmt.Errorf("mkdir '%s' failed to logs dir: %w", cfg.Dir, err)
-	}
+	var w io.Writer
 
-	path := filepath.Join(cfg.Dir, cfg.Filename)
+	if cfg.Dir == "" {
+		w = os.Stdout
+	} else {
+		if err := os.MkdirAll(cfg.Dir, 0o755); err != nil {
+			return fmt.Errorf("mkdir '%s' failed to logs dir: %w", cfg.Dir, err)
+		}
 
-	rot := &lumberjack.Logger{
-		Filename:   path,
-		MaxSize:    cfg.MaxSizeMB,
-		MaxBackups: cfg.MaxBackups,
-		MaxAge:     cfg.MaxAgeDays,
-		Compress:   cfg.Compress,
-	}
+		path := filepath.Join(cfg.Dir, cfg.Filename)
 
-	var w io.Writer = rot
+		rot := &lumberjack.Logger{
+			Filename:   path,
+			MaxSize:    cfg.MaxSizeMB,
+			MaxBackups: cfg.MaxBackups,
+			MaxAge:     cfg.MaxAgeDays,
+			Compress:   cfg.Compress,
+		}
 
-	if cfg.DuplicateToStdout {
-		w = io.MultiWriter(os.Stdout, rot)
+		w = rot
+
+		if cfg.DuplicateToStdout {
+			w = io.MultiWriter(os.Stdout, rot)
+		}
 	}
 
 	zerolog.TimeFieldFormat = cfg.TimeFormat

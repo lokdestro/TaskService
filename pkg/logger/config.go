@@ -39,10 +39,6 @@ type Config struct {
 }
 
 func validateConfig(cfg Config) Config {
-	if cfg.Dir == "" {
-		cfg.Dir = defaultDir
-	}
-
 	if cfg.Filename == "" {
 		cfg.Filename = defaultFilename
 	}

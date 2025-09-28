@@ -18,3 +18,9 @@ docker_down:
 
 swagger:
 	swag init --generalInfo cmd/main.go --output docs/
+
+e2e_test:
+	go test -v -tags=e2e ./e2e/...
+
+test:
+	go test -v -cover ./internal/...

@@ -98,6 +98,12 @@ func (s *service) Update(ctx context.Context, req dto.UpdateTaskRequest) error {
 		log.Error().Err(err).Msg("validateStatus failed")
 		return err
 	}
+	
+	tx, err := s.st.DB().BeginTx(ctx)
+	if err != nil {
+		log.Info().Err(err).Msg("begin tx failed")
+	}
+	defer tx.Rollback()
 
 	task := model.Task{
 		ID:          req.ID,
@@ -106,12 +112,12 @@ func (s *service) Update(ctx context.Context, req dto.UpdateTaskRequest) error {
 		Status:      req.Status,
 	}
 
-	err := s.st.DB().Update(ctx, task)
+	err = s.st.DB().Update(ctx, tx, task)
 	if err != nil {
 		log.Info().Err(err).Msg("update task failed")
 	}
 
-	return err
+	return tx.Commit()
 }
 
 func (s *service) Create(ctx context.Context, req dto.CreateTaskRequest) error {

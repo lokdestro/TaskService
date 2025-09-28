@@ -4,6 +4,7 @@ import (
 	"TaskService/internal/model"
 	"TaskService/pkg/logger"
 	"context"
+	"database/sql"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
@@ -11,9 +12,16 @@ import (
 type Storage interface {
 	Get(ctx context.Context, id int) (model.Task, error)
 	GetList(ctx context.Context) ([]model.Task, error)
-	Update(ctx context.Context, req model.Task) error
-	Create(ctx context.Context, tx *sqlx.Tx, task model.Task) (int, error)
-	BeginTx(ctx context.Context) (*sqlx.Tx, error)
+	Update(ctx context.Context, tx Tx, req model.Task) error
+	Create(ctx context.Context, tx Tx, task model.Task) (int, error)
+	BeginTx(ctx context.Context) (Tx, error)
+}
+
+type Tx interface {
+	Commit() error
+	Rollback() error
+	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
+	QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row
 }
 
 type repo struct {
@@ -71,15 +79,15 @@ func (r *repo) GetList(ctx context.Context) ([]model.Task, error) {
 	return tasks, nil
 }
 
-func (r *repo) Update(ctx context.Context, req model.Task) error {
+func (r *repo) Update(ctx context.Context, tx Tx, req model.Task) error {
 	query := "UPDATE tasks SET title = $1, description = $2, status = $3 WHERE id = $4"
 
-	_, err := r.db.ExecContext(ctx, query, req.Title, req.Description, req.Status, req.ID)
+	_, err := tx.ExecContext(ctx, query, req.Title, req.Description, req.Status, req.ID)
 
 	return err
 }
 
-func (r *repo) Create(ctx context.Context, tx *sqlx.Tx, req model.Task) (int, error) {
+func (r *repo) Create(ctx context.Context, tx Tx, req model.Task) (int, error) {
 	var id int
 
 	query := "INSERT INTO tasks (title, description) VALUES ($1, $2) RETURNING id"
@@ -92,6 +100,6 @@ func (r *repo) Create(ctx context.Context, tx *sqlx.Tx, req model.Task) (int, er
 	return id, nil
 }
 
-func (r *repo) BeginTx(ctx context.Context) (*sqlx.Tx, error) {
+func (r *repo) BeginTx(ctx context.Context) (Tx, error) {
 	return r.db.BeginTxx(ctx, nil)
 }

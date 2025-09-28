@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  postgres-e2e:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: e2etest
+      POSTGRES_USER: e2euser
+      POSTGRES_PASSWORD: e2epass
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U e2euser -d e2etest"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  kafka-e2e:
+    image: confluentinc/cp-kafka:7.4.0
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-e2e:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-e2e:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9093:9092"
+    depends_on:
+      - zookeeper-e2e
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server kafka-e2e:9092 --list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  zookeeper-e2e:
+    image: confluentinc/cp-zookeeper:7.4.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
