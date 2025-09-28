@@ -12,8 +12,6 @@ import (
 	"github.com/IBM/sarama"
 	"strconv"
 	"time"
-
-	"github.com/gammazero/workerpool"
 )
 
 var ErrInvalidStatus = errors.New("invalid status")
@@ -29,14 +27,12 @@ type Service interface {
 type service struct {
 	st storage.Storage
 	kc kafka.Kafka
-	wp *workerpool.WorkerPool
 }
 
 func New(st storage.Storage, kc kafka.Kafka) Service {
 	result := &service{
 		st: st,
 		kc: kc,
-		wp: workerpool.New(100),
 	}
 
 	return result
@@ -98,7 +94,7 @@ func (s *service) Update(ctx context.Context, req dto.UpdateTaskRequest) error {
 		log.Error().Err(err).Msg("validateStatus failed")
 		return err
 	}
-	
+
 	tx, err := s.st.DB().BeginTx(ctx)
 	if err != nil {
 		log.Info().Err(err).Msg("begin tx failed")

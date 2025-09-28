@@ -16,6 +16,7 @@ import (
 
 type App struct {
 	server *http.Server
+	kc     kafka.Kafka
 }
 
 func New() (*App, error) {
@@ -38,6 +39,7 @@ func New() (*App, error) {
 			Addr:    config.Srv(),
 			Handler: handler.New(srv),
 		},
+		kc: kc,
 	}
 
 	return result, nil
@@ -54,6 +56,12 @@ func (a *App) Run(ctx context.Context) error {
 			err := a.server.Shutdown(context.Background())
 			if err != nil {
 				fmt.Println(err)
+			}
+
+			err = a.kc.Close()
+			if err != nil {
+				log.Info().Err(err).Msg("Kafka client connection closed.")
+				return
 			}
 
 			fmt.Println("Server shutting down successfully")
