@@ -30,26 +30,25 @@ func New(service service.Service) *Handler {
 // @Produce json
 // @Param id path int true "Task ID"
 // @Success 200 {object} dto.GetTaskResponse
-// @Failure 400 {object} map[string]string
-// @Failure 404 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 404 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
 // @Router /tasks/{id} [get]
 func (h *Handler) GetTaskHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, "Invalid task ID", http.StatusBadRequest)
+		writeErrorResponse(w, http.StatusBadRequest, "Invalid task ID")
 		return
 	}
 
 	task, err := h.service.Task().Get(r.Context(), id)
 	if err != nil {
-		http.Error(w, "Task not found", http.StatusNotFound)
+		writeErrorResponse(w, http.StatusNotFound, "Task not found")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(task)
+	writeJSONResponse(w, http.StatusOK, task)
 }
 
 // GetTaskListHandler возвращает список всех задач
@@ -59,17 +58,16 @@ func (h *Handler) GetTaskHandler(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} dto.GetTaskListResponse
-// @Failure 500 {object} map[string]string
+// @Failure 500 {object} dto.ErrorResponse
 // @Router /tasks [get]
 func (h *Handler) GetTaskListHandler(w http.ResponseWriter, r *http.Request) {
 	tasks, err := h.service.Task().GetList(r.Context())
 	if err != nil {
-		http.Error(w, "Failed to get tasks", http.StatusInternalServerError)
+		writeErrorResponse(w, http.StatusInternalServerError, "Failed to get tasks")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(tasks)
+	writeJSONResponse(w, http.StatusOK, tasks)
 }
 
 // CreateTaskHandler создает новую задачу
@@ -79,30 +77,28 @@ func (h *Handler) GetTaskListHandler(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Param request body dto.CreateTaskRequest true "Task creation data"
-// @Success 201 {object} map[string]string
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Success 201 {object} dto.SuccessResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
 // @Router /tasks [post]
 func (h *Handler) CreateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	var req dto.CreateTaskRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		writeErrorResponse(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
 
 	if req.Title == "" {
-		http.Error(w, "Title is required", http.StatusBadRequest)
+		writeErrorResponse(w, http.StatusBadRequest, "Title is required")
 		return
 	}
 
 	if err := h.service.Task().Create(r.Context(), req); err != nil {
-		http.Error(w, "Failed to create task", http.StatusInternalServerError)
+		writeErrorResponse(w, http.StatusInternalServerError, "Failed to create task")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Task created successfully"})
+	writeJSONResponse(w, http.StatusCreated, dto.NewSuccessResponse("Task created successfully"))
 }
 
 // UpdateTaskHandler обновляет существующую задачу
@@ -112,37 +108,46 @@ func (h *Handler) CreateTaskHandler(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Param request body dto.UpdateTaskRequest true "Task update data"
-// @Success 200 {object} map[string]string
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Success 200 {object} dto.SuccessResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
 // @Router /tasks [put]
 func (h *Handler) UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	var req dto.UpdateTaskRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		writeErrorResponse(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
 
 	if req.ID == 0 {
-		http.Error(w, "Task ID is required", http.StatusBadRequest)
+		writeErrorResponse(w, http.StatusBadRequest, "Task ID is required")
 		return
 	}
 
 	if req.Title == "" {
-		http.Error(w, "Title is required", http.StatusBadRequest)
+		writeErrorResponse(w, http.StatusBadRequest, "Title is required")
 		return
 	}
 
 	err := h.service.Task().Update(r.Context(), req)
 	if err != nil {
 		if errors.Is(err, task.ErrInvalidStatus) {
-			http.Error(w, "Invalid status", http.StatusBadRequest)
+			writeErrorResponse(w, http.StatusBadRequest, "Invalid status")
 			return
 		}
-		http.Error(w, "Failed to update task", http.StatusInternalServerError)
+		writeErrorResponse(w, http.StatusInternalServerError, "Failed to update task")
 		return
 	}
 
+	writeJSONResponse(w, http.StatusOK, dto.NewSuccessResponse("Task updated successfully"))
+}
+
+func writeJSONResponse(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"message": "Task updated successfully"})
+	w.WriteHeader(statusCode)
+	json.NewEncoder(w).Encode(data)
+}
+
+func writeErrorResponse(w http.ResponseWriter, statusCode int, message string) {
+	writeJSONResponse(w, statusCode, dto.NewErrorResponse(message))
 }

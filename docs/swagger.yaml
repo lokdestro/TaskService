@@ -7,6 +7,15 @@ definitions:
       title:
         type: string
     type: object
+  dto.ErrorResponse:
+    properties:
+      error:
+        example: Invalid task ID
+        type: string
+      message:
+        example: Detailed error description
+        type: string
+    type: object
   dto.GetTaskListResponse:
     properties:
       tasks:
@@ -23,6 +32,12 @@ definitions:
       status:
         type: string
       title:
+        type: string
+    type: object
+  dto.SuccessResponse:
+    properties:
+      message:
+        example: Task created successfully
         type: string
     type: object
   dto.UpdateTaskRequest:
@@ -58,9 +73,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Get all tasks
       tags:
       - tasks
@@ -81,21 +94,15 @@ paths:
         "201":
           description: Created
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/dto.SuccessResponse'
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Create a new task
       tags:
       - tasks
@@ -116,21 +123,15 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/dto.SuccessResponse'
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Update a task
       tags:
       - tasks
@@ -155,21 +156,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Get task by ID
       tags:
       - tasks
